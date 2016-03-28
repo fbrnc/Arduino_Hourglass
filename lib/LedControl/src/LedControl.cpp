@@ -307,3 +307,17 @@ void LedControl::spiTransfer(int addr, volatile byte opcode, volatile byte data)
     //latch the data onto the display
     digitalWrite(SPI_CS,HIGH);
 }
+
+void LedControl::backup() {
+  memcpy(backupStatus, status, 64);
+}
+void LedControl::restore() {
+  memcpy(status, backupStatus, 64);
+  int offset;
+  for (int addr=0; addr<maxDevices; addr++) {
+    offset=addr*8;
+    for(int i=0;i<8;i++) {
+      spiTransfer(addr, i+1,status[offset+i]);
+    }
+  }
+}
